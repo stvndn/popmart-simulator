@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { seriesList } from "../data/popmart";
 import { motion } from "framer-motion";
 
@@ -9,13 +9,31 @@ const Simulator = () => {
   const [collection, setCollection] = useState([]); // Track collected figures
   const [activeTab, setActiveTab] = useState("open"); // Active tab ("open" or "collection")
 
+  const audioRef = useRef(new Audio("sounds/button_press.mp3")); // Create audio reference outside of the function
+
   // Whenever the series changes, reset the opened figures list
   useEffect(() => {
     setOpenedFigures([]);
   }, [selectedSeries]);
 
+  // Function to play sound
+  const playSound = () => {
+
+    audioRef.current.volume = 0.2;
+
+    if (audioRef.current.paused) {
+      audioRef.current.play(); // Play if paused
+    } else {
+      audioRef.current.currentTime = 0; // Reset audio
+      audioRef.current.play(); // Play again
+    }
+  };
+
   // Function to open boxes
   const openBoxes = () => {
+    playSound(); // Play sound when opening boxes
+    console.log("Selected series: ", selectedSeries);
+
     const series = seriesList[selectedSeries];
     const newOpenedFigures = [];
 
@@ -139,7 +157,7 @@ const Simulator = () => {
                     className="flex items-center space-x-4"
                   >
                     <img
-                      src={fig.image}
+                      src={`images/${selectedSeries}/${fig.imageFile}.jpg`} // Reference image from public/images folder
                       alt={fig.name}
                       style={{
                         width: "32px",
@@ -166,7 +184,7 @@ const Simulator = () => {
               collection.map((fig, index) => (
                 <div key={index} className="text-center">
                   <img
-                    src={fig.image}
+                    src={`images/${selectedSeries}/${fig.imageFile}.jpg`} // Reference image from public/images folder
                     alt={fig.name}
                     style={{ width: "50px", height: "50px" }}
                     className="object-contain border-2 border-gray-300 rounded-lg"
